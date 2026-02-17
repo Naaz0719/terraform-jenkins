@@ -12,7 +12,8 @@ pipeline {
             steps {
                 script {
                     // Find all directories containing .tf files
-                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\;", returnStdout: true).trim().split("\n")
+                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\; | sort -u", returnStdout: true).trim().split("\n")
+
                     
                     // Iterate over each directory
                     directories.each { directory ->
@@ -29,7 +30,8 @@ pipeline {
                     // Ask for confirmation before generating a new Terraform plan
                     input message: 'Generate a new Terraform plan?', ok: 'Generate'
                     // Find all directories containing .tf files
-                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\;", returnStdout: true).trim().split("\n")
+                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\; | sort -u", returnStdout: true).trim().split("\n")
+
                     
                     // Iterate over each directory
                     directories.each { directory ->
@@ -47,7 +49,7 @@ pipeline {
                     input message: 'Do you want to apply the Terraform changes?', ok: 'Apply'
                     
                     // Find all directories containing .tf files
-                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\;", returnStdout: true).trim().split("\n")
+                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\; | sort -u", returnStdout: true).trim().split("\n")
                     
                     // Iterate over each directory
                     directories.each { directory ->
@@ -65,7 +67,7 @@ pipeline {
                     input message: 'Do you want to destroy the Terraform infrastructure?', ok: 'Destroy'
                     
                     // Find all directories containing .tf files
-                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\;", returnStdout: true).trim().split("\n")
+                    def directories = sh(script: "find . -type f -name '*.tf' -exec dirname {} \\; | sort -u", returnStdout: true).trim().split("\n")
                     
                     // Iterate over each directory
                     directories.each { directory ->
@@ -75,5 +77,25 @@ pipeline {
                 }
             }
         }
-    }    
+    }
+
+    post {
+        always {
+            echo "Cleaning up Terraform local state to free disk space..."
+            script {
+                def directories = sh(
+                    script: "find . -type f -name '*.tf' -exec dirname {} \\;", 
+                    returnStdout: true
+                ).trim().split("\n")
+                
+                directories.each { directory ->
+                    sh """
+                    cd ${directory}
+                    rm -rf .terraform
+                    rm -f terraform.tfstate terraform.tfstate.backup tfplan
+                    """
+                }
+            }
+        }
+    }
 }
