@@ -75,25 +75,5 @@ pipeline {
                 }
             }
         }
-    }
-
-    post {
-        always {
-            echo "Cleaning up Terraform local state to free disk space..."
-            script {
-                def directories = sh(
-                    script: "find . -type f -name '*.tf' -exec dirname {} \\;", 
-                    returnStdout: true
-                ).trim().split("\n")
-                
-                directories.each { directory ->
-                    sh """
-                    cd ${directory}
-                    rm -rf .terraform
-                    rm -f terraform.tfstate terraform.tfstate.backup tfplan
-                    """
-                }
-            }
-        }
-    }
+    }    
 }
