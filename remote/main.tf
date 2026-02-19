@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform-bucket" {
-  bucket = "sagarbucket-18-11-2254"
+  bucket = "naazbuckets-19-02-02-2025"
 }
 
 resource "aws_s3_bucket_versioning" "versioning_bucket" {
@@ -14,7 +14,7 @@ resource "aws_s3_bucket_versioning" "versioning_bucket" {
 }
 
 resource "aws_dynamodb_table" "basic-dynamodb-table" {
-  name           = "ss-training"
+  name           = "naaz-db-786"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
